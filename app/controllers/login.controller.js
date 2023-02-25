@@ -1,16 +1,15 @@
-const express = require('express');
-const router = express.Router();
+const LoginService = require("../services/login.service");
 const MongoDB = require("../utils/mongodb.util");
-const loginService = require('../services/login.service');
+const ApiError = require("../api-error");
 
 exports.login = async (req, res, next) => {
-    try {
-        const loginService = new loginService(MongoDB.client);
-        const { username, password } = req.body;
-        console.log(req.body)
-        const token = await loginService.authenticate(username, password);
-        res.json({ token });
-      } catch (error) {
-        next(error);
-      }
-}
+  try {
+    const loginService = new LoginService(MongoDB.client);
+    const { username, password } = req.body;
+    console.log(req.body);
+    const { user } = await loginService.login(username, password);
+    res.json({ user});
+  } catch (err) {
+    next(err);
+  }
+};

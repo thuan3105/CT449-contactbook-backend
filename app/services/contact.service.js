@@ -53,21 +53,18 @@ class ContactService {
             throw error;
         }
     }
-
-    async update(id, updates) {
-        try {
-          const Contact = await this.Contact.findOneAndUpdate(
-            { _id: ObjectId.isValid(id) ? ObjectId(id) : null },
-            { $set: updates },
-            { new: true }
-          );
-          return Contact;
-        } catch (error) {
-          throw new Error(`Error updating contact with id ${id}: ${error}`);
+      async update(id, payload){
+        const filter = {
+            _id: ObjectId.isValid(id) ? new ObjectId(id) : null
         }
-      }
-      
-
+        const update = this.extactContactData(payload);
+        const result = await this.Contact.findOneAndUpdate(
+            filter,
+            { $set: update },
+            { returnDocument: 'after' }
+        );
+        return result.value;
+    }
     async delete(id) {
         const result = await this.Contact.findOneAndDelete({
             _id: ObjectId.isValid(id) ? new ObjectId(id) : null

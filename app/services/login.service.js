@@ -1,26 +1,25 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-class loginService{
-authenticate = async (username, password) => {
-    console.log(username);
-    console.log(password);
-    this.Contact = client.db().collection('user');
-    const user = await this.Contact.findOne({ username });
-    console.log(user);
+// const { compare } = require('bcrypt');
+
+class LoginService {
+  constructor(client) {
+    this.User = client.db().collection('user');
+  }
+  async login(username, password) {
+    const user = await this.User.findOne({ username });
     if (!user) {
-        throw new Error('User not found');
+      throw new Error('Sai username');
     }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-        throw new Error('Invalid password');
+    // const isMatch = await compare(password, user.password);
+    var checkPass = false;
+    if(password == user.password){
+      checkPass = true;
     }
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: '1d'
-    });
-
-    return token;
-};
+    if (!checkPass) {
+      throw new Error('Sai password');
+    }
+    console.log('Login Success');
+    return { user };
+  }
 }
-module.exports = loginService;
+
+module.exports = LoginService;

@@ -24,8 +24,8 @@ class ContactService {
     async create(payload) {
         const contact = this.extactContactData(payload);
         const result = await this.Contact.findOneAndUpdate(
-            contact, 
-            { $set: {favorite: contact.favorite === true }},
+            contact,
+            { $set: { favorite: contact.favorite === true } },
             { returnDocument: 'after', upsert: true }
         );
         return result.value;
@@ -42,39 +42,45 @@ class ContactService {
 
     async findById(id) {
         try {
-          const objectId = ObjectId.isValid(id) ? new ObjectId(id) : null;
-          if (!objectId) {
-            return null;
-          }
-          const result = await this.Contact.findOne({ _id: objectId });
-          return result;
+            const objectId = ObjectId.isValid(id) ? new ObjectId(id) : null;
+            if (!objectId) {
+                return null;
+            }
+            const result = await this.Contact.findOne({ _id: objectId });
+            return result;
         } catch (error) {
-          console.error(`An error occurred while finding contact with id ${id}: ${error.message}`);
-          throw error;
+            console.error(`An error occurred while finding contact with id ${id}: ${error.message}`);
+            throw error;
         }
-      }
-      
+    }
+
     async update(id, updates) {
-        return await this.Contact.findOneAndUpdate(
+        try {
+          const Contact = await this.Contact.findOneAndUpdate(
             { _id: ObjectId.isValid(id) ? ObjectId(id) : null },
             { $set: updates },
             { new: true }
-        );
-    }
-    
-    async delete(id){
+          );
+          return Contact;
+        } catch (error) {
+          throw new Error(`Error updating contact with id ${id}: ${error}`);
+        }
+      }
+      
+
+    async delete(id) {
         const result = await this.Contact.findOneAndDelete({
             _id: ObjectId.isValid(id) ? new ObjectId(id) : null
         })
         return result.value;
     }
 
-    async findFavorite(){
+    async findFavorite() {
         return await this.find({ favorite: true });
     }
 
-    
-    async deleteAll(){
+
+    async deleteAll() {
         const result = await this.Contact.deleteMany({});
         return result.deletedCount;
     }
